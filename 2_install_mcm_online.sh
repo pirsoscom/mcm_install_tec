@@ -18,8 +18,6 @@ NC='\033[0m' # No Color
 
 
 
-
-
 # ---------------------------------------------------------------------------------------------------------------------------------------------------"
 # ---------------------------------------------------------------------------------------------------------------------------------------------------"
 # Default Values
@@ -467,7 +465,7 @@ else
 
     sed -i "s/notary: disabled/notary: enabled/" cluster/config.yaml
     sed -i "s/cis-controller: disabled/notary: enabled/" cluster/config.yaml
-    sed -i "s/mutation-advisor: disabled/notary: enabled/" cluster/config.yaml
+    sed -i "s/mutation-advisor: disabled/mutation-advisor: enabled/" cluster/config.yaml
 
 fi
 

@@ -560,6 +560,9 @@ echo "--------------------------------------------------------------------------
   echo "----------------------------------------------------------------------------------------------------------------------------------------------------"
   echo "----------------------------------------------------------------------------------------------------------------------------------------------------"
 
+  echo "   Waiting for 30 seconds before starting to check for APM Rollout"
+  sleep 30
+
   CONFIGMAP_RESOLVE=$(kubectl get pods -l release=apm -n kube-system 2>&1)
   while [[ ($CONFIGMAP_RESOLVE =~ "Error") || ($CONFIGMAP_RESOLVE =~ "Init") || ($CONFIGMAP_RESOLVE =~ "Pending") || ($CONFIGMAP_RESOLVE =~ "CrashLoopBackOff")  ]]; do 
     CONFIGMAP_RESOLVE=$(kubectl get pods -l release=apm -n kube-system 2>&1)
