@@ -104,6 +104,18 @@ When installing with additional clusters (you probably won't need this)
 "docker-registry-default.apps.okd2.tec.hur.cdn"
 ```
 
+
+### 6) Default Storage Class
+
+You have to have a Default Storage Class defined.
+
+If not add the annotation to the class (typically nfs-client for TEC): 
+```bash
+storageclass.kubernetes.io/is-default-class=true
+```
+
+
+
 ## Installing
 
 
@@ -133,14 +145,7 @@ Example:
 
 ```
 
-### 6) Default Storage Class
 
-You have to have a Default Storage Class defined.
-
-If not add the annotation to the class (typically nfs-client for TEC): 
-```bash
-storageclass.kubernetes.io/is-default-class=true
-```
 ___
 
 
