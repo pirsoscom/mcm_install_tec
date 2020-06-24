@@ -133,7 +133,14 @@ Example:
 
 ```
 
+### 6) Default Storage Class
 
+You have to have a Default Storage Class defined.
+
+If not add the annotation to the class (typically nfs-client for TEC): 
+```bash
+storageclass.kubernetes.io/is-default-class=true
+```
 ___
 
 
