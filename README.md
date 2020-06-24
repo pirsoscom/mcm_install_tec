@@ -16,9 +16,15 @@ You need the following installed and running:
 * cloudctl
 
 
+### 2) Update Nodes
 
+From the Bastion Host run:
 
-### 2) Adapt config file  (0_config.sh)
+```bash
+for i in $(grep -E '(master|worker)' /etc/hosts | awk '{print $1}');do     ssh core@$i 'hostname;sudo sysctl -w vm.max_map_count=262144'; done
+```
+
+### 3) Adapt config file  (0_config.sh)
 
 Please select the components that you want to install.
 
@@ -66,7 +72,7 @@ export INSTALL_DEMO=true
 ```
 
 
-### 3) Adapt hosts file
+### 4) Adapt hosts file
 
 You have to adapt your hosts file
 
@@ -85,7 +91,7 @@ When installing with additional clusters (you probably won't need this)
 
 
 
-### 4) Adapt Docker Daemon configuration
+### 5) Adapt Docker Daemon configuration
 
 ```bash
 "default-route-openshift-image-registry.apps.ocp43.tec.uk.ibm.com",
