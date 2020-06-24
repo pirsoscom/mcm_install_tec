@@ -1,0 +1,15 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: postgresql
+  namespace: cf
+  labels:
+    app: manageiq
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 15Gi
+  storageClassName: ibmc-block-gold
+  volumeMode: Filesystem

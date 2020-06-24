@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="12px" height="13px" viewBox="0 0 12 13" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: sketchtool 56.3 (101010) - https://sketch.com -->
+    <title>A32F9B3C-4001-422D-BACD-5E237D9ED1C9</title>
+    <desc>Created with sketchtool.</desc>
+    <defs>
+        <path d="M9.83653846,11.625 L0.894230769,11.625 C0.400360753,11.625 0,11.2246392 0,10.7307692 L0,1.78846154 C0,1.29459152 0.400360753,0.894230769 0.894230769,0.894230769 L4.91826923,0.894230769 L4.91826923,1.78846154 L0.894230769,1.78846154 L0.894230769,10.7307692 L9.83653846,10.7307692 L9.83653846,6.70673077 L10.7307692,6.70673077 L10.7307692,10.7307692 C10.7307692,11.2246392 10.3304085,11.625 9.83653846,11.625 Z M7.60096154,0 L7.60096154,0.894230769 L10.1003365,0.894230769 L6.25961538,4.73495192 L6.89004808,5.36538462 L10.7307692,1.52466346 L10.7307692,4.02403846 L11.625,4.02403846 L11.625,0 L7.60096154,0 L7.60096154,0 Z" id="path-1"></path>
+    </defs>
+    <g id="Getting-Started-Hifi" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="01.01-Getting-Started" transform="translate(-331.000000, -1325.000000)">
+            <g id="launch" transform="translate(331.052103, 1325.542361)">
+                <mask id="mask-2" fill="white">
+                    <use xlink:href="#path-1"></use>
+                </mask>
+                <use id="Mask" fill="#0f62fe" fill-rule="nonzero" xlink:href="#path-1"></use>
+            </g>
+        </g>
+    </g>
+</svg>

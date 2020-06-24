@@ -1,0 +1,17 @@
+
+apiVersion: app.ibm.com/v1alpha1
+kind: Channel
+metadata:
+  name: grpcdemo-app-channel
+  namespace: grpcdemo-app-ns
+  generation: 1
+  labels:
+    app: grpcdemo-app
+spec:
+  sourceNamespaces:
+  - grpcdemo-app-ns
+  type: Namespace
+  pathname: grpcdemo-app-ns
+
+
+

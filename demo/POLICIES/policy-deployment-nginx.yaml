@@ -1,0 +1,70 @@
+apiVersion: policy.mcm.ibm.com/v1alpha1
+kind: Policy
+metadata:
+  name: policy-nginx
+  namespace: default
+  annotations:
+    policy.mcm.ibm.com/categories: DEV Network Configuration
+    policy.mcm.ibm.com/standards: IBM
+spec:
+  complianceType: musthave
+  disabled: false
+  namespaces:
+    exclude:
+      - kube-*
+    include:
+      - default
+  object-templates:
+    - complianceType: musthave
+      objectDefinition:
+        apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+          name: nginx-policy-deployment
+          namespace: default
+        spec:
+          replicas: 2
+          selector:
+            matchLabels:
+              app: nginx-policy
+          template:
+            metadata:
+              labels:
+                app: nginx-policy
+            spec:
+              containers:
+                - name: nginx-policy
+                  image: 'nginx:1.7.9'
+                  ports:
+                    - containerPort: 80
+          type: NodePort
+  remediationAction: enforce
+---
+apiVersion: mcm.ibm.com/v1alpha1
+kind: PlacementBinding
+metadata:
+  name: binding-policy-nginx
+  namespace: default
+placementRef:
+  name: placement-policy-nginx
+  apiGroup: mcm.ibm.com
+  kind: PlacementPolicy
+subjects:
+  - name: policy-nginx
+    apiGroup: policy.mcm.ibm.com
+    kind: Policy
+---
+apiVersion: mcm.ibm.com/v1alpha1
+kind: PlacementPolicy
+metadata:
+  name: placement-policy-nginx
+  namespace: default
+spec:
+  clusterLabels:
+    matchExpressions:
+      - key: environment
+        operator: In
+        values:
+          - Dev
+  resourceHint: {}
+  resourceSelector: {}

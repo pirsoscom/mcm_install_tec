@@ -1,0 +1,30 @@
+apiVersion: app.ibm.com/v1alpha1
+kind: Subscription
+metadata:
+  name: kubetoy-application
+  namespace: kubetoy-project
+  labels:
+    app: kubetoy-app
+spec:
+  channel: kubetoy-channel-namespace/kubetoy-channel
+  packageFilter:
+    labelSelector:
+      matchLabels:
+        app: kubetoy-app
+  placement:
+    placementRef:
+      name: kubetoy-placement-rule
+      kind: PlacementRule
+---
+apiVersion: app.ibm.com/v1alpha1
+kind: PlacementRule
+metadata:
+  name: kubetoy-placement-rule
+  namespace: kubetoy-project
+  labels:
+    app: kubetoy-app
+spec:
+  clusterReplicas: 5
+  clusterLabels:
+    matchLabels:  
+      region: EU

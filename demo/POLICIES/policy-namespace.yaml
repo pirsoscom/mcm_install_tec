@@ -1,0 +1,52 @@
+
+apiVersion: policy.mcm.ibm.com/v1alpha1
+kind: Policy
+metadata:
+  name: policy-namespace
+  namespace: default
+  annotations:
+    policy.mcm.ibm.com/categories: PROD Baseline configuration
+    policy.mcm.ibm.com/standards: NIST
+spec:
+  complianceType: musthave
+  disabled: false
+  namespaces:
+    exclude:
+      - kube-*
+    include:
+      - default
+  object-templates:
+    - complianceType: musthave
+      objectDefinition:
+        apiVersion: v1
+        kind: Namespace
+        metadata:
+          name: prod
+  remediationAction: enforce
+---
+apiVersion: mcm.ibm.com/v1alpha1
+kind: PlacementPolicy
+metadata:
+  name: placement-policy-namespace
+  namespace: default
+spec:
+  clusterLabels:
+    matchExpressions:
+      - key: environment
+        operator: In
+        values:
+          - Prod
+---
+apiVersion: mcm.ibm.com/v1alpha1
+kind: PlacementBinding
+metadata:
+  name: binding-policy-namespace
+  namespace: default
+placementRef:
+  name: placement-policy-namespace
+  apiGroup: mcm.ibm.com
+  kind: PlacementPolicy
+subjects:
+  - name: policy-namespace
+    apiGroup: policy.mcm.ibm.com
+    kind: Policy

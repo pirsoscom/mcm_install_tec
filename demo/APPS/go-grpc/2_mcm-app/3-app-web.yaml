@@ -1,0 +1,110 @@
+apiVersion: app.ibm.com/v1alpha1
+kind: Subscription
+metadata:
+  name: grpcdemo-app-web
+  namespace: grpcdemo-app
+  generation: 1
+  labels:
+    app: grpcdemo-app-web
+spec:
+  name: ''
+  channel: grpcdemo-app-ns/grpcdemo-app-channel
+  placement:
+    placementRef:
+      name: grpcdemo-app-web-placement
+      kind: PlacementRule
+  packageFilter:
+    labelSelector:
+      matchLabels:
+        app: grpcdemo-app-web
+---
+apiVersion: app.ibm.com/v1alpha1
+kind: PlacementRule
+metadata:
+  name: grpcdemo-app-web-placement
+  namespace: grpcdemo-app
+  generation: 1
+  labels:
+    app: grpcdemo-app-web
+spec:
+  clusterLabels:
+    matchLabels:
+      environment: Dev
+      region: EU
+  clusterReplicas: 1
+
+
+
+---
+apiVersion: app.ibm.com/v1alpha1
+kind: Subscription
+metadata:
+  name: grpcdemo-app-api
+  namespace: grpcdemo-app
+  generation: 1
+  labels:
+    app: grpcdemo-app-api
+spec:
+  name: ''
+  channel: grpcdemo-app-ns/grpcdemo-app-channel
+  placement:
+    placementRef:
+      name: grpcdemo-app-api-placement
+      kind: PlacementRule
+  packageFilter:
+    labelSelector:
+      matchLabels:
+        app: grpcdemo-app-api
+---
+apiVersion: app.ibm.com/v1alpha1
+kind: PlacementRule
+metadata:
+  name: grpcdemo-app-api-placement
+  namespace: grpcdemo-app
+  generation: 1
+  labels:
+    app: grpcdemo-app-api
+spec:
+  clusterLabels:
+    matchLabels:
+      environment: Prod
+      region: EU
+  clusterReplicas: 1
+---
+
+
+
+apiVersion: app.ibm.com/v1alpha1
+kind: Subscription
+metadata:
+  name: grpcdemo-app-server
+  namespace: grpcdemo-app
+  generation: 1
+  labels:
+    app: grpcdemo-app-server
+spec:
+  name: ''
+  channel: grpcdemo-app-ns/grpcdemo-app-channel
+  placement:
+    placementRef:
+      name: grpcdemo-app-server-placement
+      kind: PlacementRule
+  packageFilter:
+    labelSelector:
+      matchLabels:
+        app: grpcdemo-app-server
+---
+apiVersion: app.ibm.com/v1alpha1
+kind: PlacementRule
+metadata:
+  name: grpcdemo-app-server-placement
+  namespace: grpcdemo-app
+  generation: 1
+  labels:
+    app: grpcdemo-app-server
+spec:
+  clusterLabels:
+    matchLabels:
+      environment: Prod
+      region: EU
+  clusterReplicas: 1

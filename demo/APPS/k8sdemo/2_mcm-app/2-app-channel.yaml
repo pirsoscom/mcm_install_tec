@@ -1,0 +1,19 @@
+
+apiVersion: app.ibm.com/v1alpha1
+kind: Channel
+metadata:
+  name: k8s-demo-app-channel
+  namespace: k8s-demo-app-ns
+  generation: 1
+  labels:
+    app: k8s-demo-app
+spec:
+  sourceNamespaces:
+  - k8s-demo-app-ns
+  type: Namespace
+  pathname: k8s-demo-app-ns
+  gates:
+    annotations:
+      dev-ready: approved
+
+

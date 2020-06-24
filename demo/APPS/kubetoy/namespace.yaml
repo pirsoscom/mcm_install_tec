@@ -1,0 +1,13 @@
+#kubectl create ns cloud-university-app
+#kubectl create ns cloud-university-app-channel
+
+
+apiVersion: v1                     
+kind: Namespace
+metadata:
+  name: kubetoy-channel-namespace
+---
+apiVersion: v1                     
+kind: Namespace
+metadata:
+  name: kubetoy-project

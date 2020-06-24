@@ -1,0 +1,79 @@
+# kubectl delete Policy default. policy-pod-security -n minikube1
+apiVersion: policy.mcm.ibm.com/v1alpha1
+kind: Policy
+metadata:
+  name:  policy-pod-security
+  namespace: default
+  annotations:
+    policy.mcm.ibm.com/categories: PROD Production Ready
+    policy.mcm.ibm.com/standards: NIST
+spec:
+  complianceType: musthave
+  disabled: false
+  namespaces:
+    exclude:
+      - kube-*
+    include:
+      - default
+  object-templates:
+    - complianceType: musthave
+      objectDefinition:
+        apiVersion: policy/v1beta1
+        kind: PodSecurityPolicy
+        metadata:
+          name: restricted-mcm
+          annotations:
+            seccomp.security.alpha.kubernetes.io/allowedProfileNames: '*'
+        spec:
+          allowedCapabilities:
+            - '*'
+          allowPrivilegeEscalation: false
+          fsGroup:
+            rule: RunAsAny
+          hostIPC: false
+          hostNetwork: true
+          hostPID: false
+          hostPorts:
+            - max: 65535
+              min: 1000
+          privileged: false
+          remediationAction: inform
+          runAsUser:
+            rule: RunAsAny
+          seLinux:
+            rule: RunAsAny
+          severity: high
+          supplementalGroups:
+            rule: RunAsAny
+          volumes:
+            - '*'
+  remediationAction: enforce
+---
+apiVersion: mcm.ibm.com/v1alpha1
+kind: PlacementPolicy
+metadata:
+  name: placement-policy-pod-security
+  namespace: default
+spec:
+  clusterLabels:
+    matchExpressions:
+      - key: environment
+        operator: In
+        values:
+          - Prod
+  resourceHint: {}
+  resourceSelector: {}
+---
+apiVersion: mcm.ibm.com/v1alpha1
+kind: PlacementBinding
+metadata:
+  name: binding-policy-pod-security
+  namespace: default
+placementRef:
+  name: placement-policy-pod-security
+  apiGroup: mcm.ibm.com
+  kind: PlacementPolicy
+subjects:
+  - name:  policy-pod-security
+    apiGroup: policy.mcm.ibm.com
+    kind: Policy

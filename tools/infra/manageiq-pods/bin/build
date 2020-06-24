@@ -1,0 +1,113 @@
+#!/bin/bash
+
+TAG=latest
+
+BUILD_REF=${BUILD_REF:-master}
+BUILD_ORG=${BUILD_ORG:-ManageIQ}
+
+ARCH=`uname -m`
+CORE_REPO_NAME=${CORE_REPO_NAME:-manageiq}
+
+GIT_HOST=${GIT_HOST:-github.com}
+GIT_AUTH=${GIT_AUTH:-""}
+
+HOOKS_SCRIPT_URL=${HOOKS_SCRIPT_URL:-""}
+
+OPERATOR_DIR=${OPERATOR_DIR:-manageiq-operator}
+
+RPM_BUILD_OPTIONS=${RPM_BUILD_OPTIONS:-""}
+RPM_BUILD_IMAGE=${RPM_BUILD_IMAGE:-"manageiq/rpm_build:$TAG"}
+RPM_PREFIX=${RPM_PREFIX:-"manageiq"}
+
+while getopts "t:d:r:bnhlp" opt; do
+  case $opt in
+    b) REBUILD_RPM="true" ;;
+    d) IMAGE_DIR=$OPTARG ;;
+    l) LOCAL_RPM="true" ;;
+    n) NO_CACHE="true" ;;
+    p) PUSH="true" ;;
+    r) REPO=$OPTARG ;;
+    t) TAG=$OPTARG ;;
+    h) echo "Usage: $0 -d IMAGE_DIR -r IMAGE_REPOSITORY [-hblnp] [ -t IMAGE_TAG ]"; exit 1
+  esac
+done
+
+if [ -z "$IMAGE_DIR" ]; then
+  echo "Required parameter for image directory (-d) is missing"
+  exit 1
+fi
+
+if [ -z "$REPO" ]; then
+  echo "Required parameter for repository (-r) is missing"
+  exit 1
+fi
+
+if [ -n "$LOCAL_RPM" ] && [ -n "$REBUILD_RPM" ]; then
+  echo "Local rpm (-l) and rebuild rpm (-b) options can't be used together"
+  exit 1
+fi
+
+set -e
+
+if [ -n "$REBUILD_RPM" ]; then
+  rpm_dir=$IMAGE_DIR/manageiq-base/rpms
+  rm -rf $rpm_dir/*
+  options="-v $PWD/$rpm_dir:/root/BUILD/rpms"
+  if [ -n "$RPM_BUILD_OPTIONS" ]; then
+    options+=" -v $PWD/$RPM_BUILD_OPTIONS:/root/OPTIONS"
+  fi
+  docker pull $RPM_BUILD_IMAGE
+  cmd="docker run -it --rm $options $RPM_BUILD_IMAGE build"
+  echo "Building RPMs locally: $cmd"
+  $cmd
+fi
+
+pushd $IMAGE_DIR
+  cmd="docker build --tag $REPO/manageiq-base:$TAG \
+                    --pull \
+                    --build-arg BUILD_REF=$BUILD_REF \
+                    --build-arg BUILD_ORG=$BUILD_ORG \
+                    --build-arg GIT_AUTH=$GIT_AUTH \
+                    --build-arg GIT_HOST=$GIT_HOST \
+                    --build-arg HOOKS_SCRIPT_URL=$HOOKS_SCRIPT_URL \
+                    --build-arg CORE_REPO_NAME=$CORE_REPO_NAME \
+                    --build-arg ARCH=$ARCH \
+                    --build-arg RPM_PREFIX=$RPM_PREFIX"
+
+  if [ -n "$NO_CACHE" ]; then
+    cmd+=" --no-cache"
+  fi
+
+  if [ -n "$LOCAL_RPM" ] || [ -n "$REBUILD_RPM" ]; then
+    cmd+=" --build-arg LOCAL_RPM=true"
+  fi
+
+  echo "Building manageiq-base: $cmd"
+  $cmd manageiq-base
+
+  build_images="manageiq-base-worker manageiq-orchestrator manageiq-webserver-worker manageiq-ui-worker"
+  for image in $build_images; do
+    cmd="docker build --tag $REPO/$image:$TAG \
+                      --build-arg FROM_REPO=$REPO \
+                      --build-arg FROM_TAG=$TAG \
+                      --build-arg RPM_PREFIX=$RPM_PREFIX \
+                      $image"
+    echo "Building $image: $cmd"
+    $cmd
+  done
+popd
+
+pushd "$OPERATOR_DIR"
+  cmd="operator-sdk build $REPO/manageiq-operator:$TAG"
+  echo "Building manageiq-operator: $cmd"
+  $cmd
+popd
+
+if [ -n "$PUSH" ]; then
+  push_images="manageiq-base manageiq-base-worker manageiq-orchestrator manageiq-webserver-worker manageiq-ui-worker manageiq-operator"
+  for image in $push_images; do
+    cmd="docker push $REPO/$image:$TAG"
+    echo "Pushing: $cmd"
+    $cmd
+  done
+fi

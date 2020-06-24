@@ -1,0 +1,105 @@
+apiVersion: policy.mcm.ibm.com/v1alpha1
+kind: Policy
+metadata:
+  name: policy-mcm
+  namespace: default
+  annotations:
+    policy.mcm.ibm.com/categories: ALL Production Ready
+    policy.mcm.ibm.com/standards: IBM
+spec:
+  complianceType: musthave
+  disabled: false
+  namespaces:
+    exclude:
+      - kube-*
+    include:
+      - multicluster-endpoint
+  object-templates:
+    - complianceType: musthave
+      objectDefinition:
+        apiVersion: v1
+        kind: Namespace
+        metadata:
+          name: multicluster-endpoint
+    - complianceType: musthave
+      objectDefinition:
+        apiVersion: extensions/v1beta1
+        kind: Deployment
+        metadata:
+          name: endpoint-appmgr
+          namespace: multicluster-endpoint
+          annotations:
+            deployment.kubernetes.io/revision: '1'
+          labels:
+            app: application-manager
+            chart: application-manager-0.1.0
+            component: application-manager
+            connectionManager: endpoint-connmgr
+        spec:
+          progressDeadlineSeconds: 2147483647
+          replicas: 1
+          revisionHistoryLimit: 2
+          selector:
+            matchLabels:
+              app: application-manager
+              component: application-manager
+          strategy:
+            rollingUpdate:
+              maxSurge: 1
+              maxUnavailable: 1
+            type: RollingUpdate
+          template:
+            metadata:
+              labels:
+                app: application-manager
+                chart: application-manager-0.1.0
+                component: application-manager
+                controller: operator
+            spec:
+              containers:
+                - name: subscription-controller
+                  image: 'cp.icr.io/cp/icp-foundation/subscription:3.3.0'
+                  imagePullPolicy: IfNotPresent
+                  resources:
+                    limits:
+                      cpu: 500m
+                      memory: 2Gi
+                    requests:
+                      cpu: 100m
+                      memory: 128Mi
+                  securityContext:
+                    allowPrivilegeEscalation: false
+                    capabilities:
+                      drop:
+                        - ALL
+                    privileged: false
+  remediationAction: inform
+---
+apiVersion: mcm.ibm.com/v1alpha1
+kind: PlacementBinding
+metadata:
+  name: binding-policy-mcm
+  namespace: default
+placementRef:
+  name: placement-policy-mcm
+  apiGroup: mcm.ibm.com
+  kind: PlacementPolicy
+subjects:
+  - name: policy-mcm
+    apiGroup: policy.mcm.ibm.com
+    kind: Policy
+---
+apiVersion: mcm.ibm.com/v1alpha1
+kind: PlacementPolicy
+metadata:
+  name: placement-policy-mcm
+  namespace: default
+spec:
+  clusterLabels:
+    matchExpressions:
+      - key: environment
+        operator: In
+        values:
+          - Dev
+  resourceHint: {}
+  resourceSelector: {}

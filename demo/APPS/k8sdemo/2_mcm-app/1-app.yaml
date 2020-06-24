@@ -1,0 +1,21 @@
+
+apiVersion: app.k8s.io/v1beta1
+kind: Application
+metadata:
+  name: k8s-demo-app
+  namespace: k8s-demo-app
+  generation: 1
+  labels:
+    app: k8s-demo-app
+spec:
+  componentKinds:
+    - group: app.ibm.com
+      kind: Subscription
+  descriptor: {}
+  selector:
+    matchExpressions:
+      - key: app
+        operator: In
+        values:
+          - k8s-demo-app-web
+          - k8s-demo-app-backend

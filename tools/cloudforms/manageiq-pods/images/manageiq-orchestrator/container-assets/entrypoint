@@ -1,0 +1,102 @@
+#!/bin/bash
+
+[[ -s ${APP_ROOT}/container_env ]] && source ${APP_ROOT}/container_env
+
+function check_svc_status() {
+  local SVC_NAME=$1 SVC_PORT=$2
+
+  [[ $# -lt 2 ]] && echo "Error something seems wrong, we need at least two parameters to check service status" && exit 1
+
+  echo "== Checking ${SVC_NAME}:$SVC_PORT status =="
+
+  while true; do
+    ncat ${SVC_NAME} ${SVC_PORT} < /dev/null && break
+    sleep 5
+  done
+  echo "${SVC_NAME}:${SVC_PORT} - accepting connections"
+}
+
+function update_auth_settings() {
+  echo "== Updating auth settings =="
+  script=$(cat <<- EOS
+    provider_type = case ENV['AUTH_TYPE']
+                    when 'saml'
+                      'saml'
+                    when 'openid-connect'
+                      'oidc'
+                    else
+                      'none'
+                    end
+    settings = {
+      'authentication/mode'                 => ENV['AUTH_TYPE'] != "internal" ? 'httpd' : 'database',
+      'authentication/httpd_role'           => ENV['AUTH_TYPE'] != "internal" ? true : false,
+      'authentication/sso_enabled'          => ENV['AUTH_SSO'] == "true",
+      'authentication/saml_enabled'         => provider_type == 'saml',
+      'authentication/oidc_enabled'         => provider_type == 'oidc',
+      'authentication/provider_type'        => provider_type,
+      'authentication/local_login_disabled' => ENV['LOCAL_LOGIN_ENABLED'] == "false"
+    }
+    MiqRegion.my_region.add_settings_for_resource(settings)
+EOS
+)
+
+  bin/rails runner "$script"
+}
+
+function create_initial_group() {
+  if [ "$ADMIN_GROUP" != "" ]; then
+    echo "== Creating initial group "$ADMIN_GROUP" =="
+    bin/rails runner "MiqGroup.create!(:miq_user_role => MiqUserRole.find_by(:name => 'EvmRole-super_administrator'), :description => ENV['ADMIN_GROUP'], :tenant => Tenant.root_tenant)"
+  fi
+}
+
+check_svc_status ${MEMCACHED_SERVICE_HOST} ${MEMCACHED_SERVICE_PORT}
+check_svc_status ${DATABASE_HOSTNAME} ${DATABASE_PORT}
+
+echo "== Writing encryption key =="
+cat > /var/www/miq/vmdb/certs/v2_key << KEY
+---
+:algorithm: aes-256-cbc
+:key: ${ENCRYPTION_KEY}
+KEY
+
+echo "${GUID}" > ${APP_ROOT}/GUID
+
+echo "== Checking deployment status =="
+
+cd ${APP_ROOT}
+bin/rake evm:deployment_status
+case $? in
+  3) # new_deployment
+    echo "== Starting New Deployment =="
+
+    pushd ${APP_ROOT}
+      set -e
+      REGION=${DATABASE_REGION} bin/rake db:migrate
+      REGION=${DATABASE_REGION} bin/rake db:seed
+      create_initial_group
+    popd
+  ;;
+  4) # new_replica
+    echo "New replica is not supported, exiting.."
+    exit 1
+  ;;
+  5) # redeployment
+    echo "== Starting Re-deployment =="
+  ;;
+  6) # upgrade
+    echo "== Starting Upgrade =="
+    pushd ${APP_ROOT}
+      bin/rake db:migrate
+      [ "$?" -ne "0" ] && echo "ERROR: Failed to migrate database" && exit 1
+    popd
+  ;;
+  *)
+    echo "Could not find a suitable deployment type, exiting.."
+    exit 1
+esac
+
+pushd ${APP_ROOT}
+  update_auth_settings
+popd
+exec ruby /var/www/miq/vmdb/lib/workers/bin/evm_server.rb

@@ -1,0 +1,69 @@
+apiVersion: app.ibm.com/v1alpha1
+kind: Subscription
+metadata:
+  name: k8s-demo-app-web
+  namespace: k8s-demo-app
+  generation: 1
+  labels:
+    app: k8s-demo-app-web
+spec:
+  name: ''
+  channel: k8s-demo-app-ns/k8s-demo-app-channel
+  placement:
+    placementRef:
+      name: k8s-demo-app-web-placement
+      kind: PlacementRule
+  packageFilter:
+    labelSelector:
+      matchLabels:
+        app: k8s-demo-app-web
+---
+apiVersion: app.ibm.com/v1alpha1
+kind: PlacementRule
+metadata:
+  name: k8s-demo-app-web-placement
+  namespace: k8s-demo-app
+  generation: 1
+  labels:
+    app: k8s-demo-app-web
+spec:
+  clusterLabels:
+    matchLabels:
+      environment: Dev
+      region: EU
+  clusterReplicas: 1
+---
+apiVersion: app.ibm.com/v1alpha1
+kind: Subscription
+metadata:
+  name: k8s-demo-app-backend
+  namespace: k8s-demo-app
+  generation: 1
+  labels:
+    app: k8s-demo-app-backend
+spec:
+  name: ''
+  channel: k8s-demo-app-ns/k8s-demo-app-channel
+  placement:
+    placementRef:
+      name: k8s-demo-app-backend-placement
+      kind: PlacementRule
+  packageFilter:
+    labelSelector:
+      matchLabels:
+        app: k8s-demo-app-backend
+---
+apiVersion: app.ibm.com/v1alpha1
+kind: PlacementRule
+metadata:
+  name: k8s-demo-app-backend-placement
+  namespace: k8s-demo-app
+  generation: 1
+  labels:
+    app: k8s-demo-app-backend
+spec:
+  clusterLabels:
+    matchLabels:
+      environment: Prod
+      region: EU
+  clusterReplicas: 1

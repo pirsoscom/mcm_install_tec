@@ -1,0 +1,14 @@
+#kubectl create ns cloud-university-app
+#kubectl create ns cloud-university-app-channel
+
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: modresort-app
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: modresort-app-ns
+

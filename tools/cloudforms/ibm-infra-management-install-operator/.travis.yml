@@ -1,0 +1,37 @@
+# Supported languages listed here: https://docs.travis-ci.com/user/languages/
+#matrix:
+#  include:
+#    - language: node_js
+#    - language: go
+#      go:
+#        - 1.14.x
+
+language: go
+go: 1.14.x
+
+services:
+  - docker
+
+branches:
+  only:
+    - master
+    - /^release-[0-9]+\..*$/
+
+stages:
+  - unit-test
+  - build
+  - test-e2e
+  - publish
+
+before_script:
+  - make init
+  - make docker/registry/login
+
+jobs:
+  include:
+    - stage: build
+      name: "Build the image"
+      script:
+        - make operatorsdk/build
+        - make docker/image/tag-and-push
+

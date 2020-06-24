@@ -1,0 +1,123 @@
+---
+- MiqPolicySet:
+    name: Demo Policies
+    description: Demo Policies
+    set_type: MiqPolicySet
+    guid: e1908b30-f52d-4b00-958b-7962a857f9b5
+    read_only: 
+    set_data: 
+    mode: 
+    owner_type: 
+    owner_id: 
+    userid: 
+    group_id: 
+    MiqPolicy:
+    - name: 1308ba2f-4b19-468f-bf42-0429df3e0ed6
+      description: Flavour Check
+      expression: 
+      towhat: Vm
+      guid: 1308ba2f-4b19-468f-bf42-0429df3e0ed6
+      created_by: demo@ibm.com
+      updated_by: demo@ibm.com
+      notes: 
+      active: true
+      mode: compliance
+      read_only: 
+      MiqPolicyContent:
+      - qualifier: failure
+        failure_sequence: 1
+        failure_synchronous: true
+        MiqEventDefinition:
+          name: vm_compliance_check
+          description: VM Compliance Check
+          guid: 25975350-2574-4c80-8c20-3007dc60d4cd
+          event_type: Default
+          definition: 
+          default: 
+          enabled: 
+        MiqAction:
+          name: compliance_failed
+          description: Mark as Non-Compliant
+          guid: ecca7b67-3d3e-4c02-94cd-09fe6d1db43d
+          action_type: default
+          options: {}
+      - qualifier: failure
+        failure_sequence: 2
+        failure_synchronous: true
+        MiqEventDefinition:
+          name: vm_compliance_check
+          description: VM Compliance Check
+          guid: 25975350-2574-4c80-8c20-3007dc60d4cd
+          event_type: Default
+          definition: 
+          default: 
+          enabled: 
+        MiqAction:
+          name: vm_stop
+          description: Stop Virtual Machine
+          guid: e3ed0ec7-5609-4740-a33b-f9b23726c271
+          action_type: default
+          options: {}
+      Condition:
+      - name: 91b1b73d-959a-468f-a08b-2bfb6246217c
+        description: Check Flavor Nano
+        expression: !ruby/object:MiqExpression
+          exp:
+            "=":
+              field: Vm.flavor-name
+              value: t3.nano
+          context_type: 
+        towhat: Vm
+        file_mtime: 
+        guid: 91b1b73d-959a-468f-a08b-2bfb6246217c
+        filename: 
+        applies_to_exp: 
+        miq_policy_id: 
+        notes: 
+        read_only: 
+    - name: d150f9f5-df39-4473-968d-2d85809f261e
+      description: Check OS
+      expression: 
+      towhat: Vm
+      guid: d150f9f5-df39-4473-968d-2d85809f261e
+      created_by: demo@ibm.com
+      updated_by: demo@ibm.com
+      notes: 
+      active: true
+      mode: compliance
+      read_only: 
+      MiqPolicyContent:
+      - qualifier: failure
+        failure_sequence: 1
+        failure_synchronous: true
+        MiqEventDefinition:
+          name: vm_compliance_check
+          description: VM Compliance Check
+          guid: 25975350-2574-4c80-8c20-3007dc60d4cd
+          event_type: Default
+          definition: 
+          default: 
+          enabled: 
+        MiqAction:
+          name: compliance_failed
+          description: Mark as Non-Compliant
+          guid: ecca7b67-3d3e-4c02-94cd-09fe6d1db43d
+          action_type: default
+          options: {}
+      Condition:
+      - name: 81df71a1-0b14-4894-b270-a24f5c3c0f68
+        description: Check Ubuntu
+        expression: !ruby/object:MiqExpression
+          exp:
+            INCLUDES:
+              field: Vm-os_image_name
+              value: ubuntu
+          context_type: 
+        towhat: Vm
+        file_mtime: 
+        guid: 81df71a1-0b14-4894-b270-a24f5c3c0f68
+        filename: 
+        applies_to_exp: 
+        miq_policy_id: 
+        notes: 
+        read_only: 

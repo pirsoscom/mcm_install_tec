@@ -1,0 +1,259 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: ClusterServiceVersion
+metadata:
+  annotations:
+    alm-examples: |-
+      [
+        {
+          "apiVersion": "infra.management.ibm.com/v1alpha1",
+          "kind": "IMInstall",
+          "metadata": {
+            "labels": {
+              "app.kubernetes.io/instance": "ibm-infra-management-install-operator",
+              "app.kubernetes.io/managed-by": "ibm-infra-management-install-operator",
+              "app.kubernetes.io/name": "ibm-infra-management-install-operator"
+            },
+            "name": "example-iminstall"
+          },
+          "spec": {
+            "applicationDomain": "iminstall.apps.gyliu-ocp-1.os.fyre.ibm.com",
+            "imagePullSecret": "docker",
+            "license": {
+              "accept": true
+            },
+            "httpdImageNamespace": "hyc-cp4mcm-team-docker-local.artifactory.swg-devops.com/infra-mgmt/httpd",
+            "httpdImageTag": "latest",
+            "kafkaImageName": "hyc-cp4mcm-team-docker-local.artifactory.swg-devops.com/infra-mgmt/kafka",
+            "kafkaImageTag": "latest",
+            "memcachedImageName": "hyc-cp4mcm-team-docker-local.artifactory.swg-devops.com/infra-mgmt/memcached",
+            "memcachedImageTag": "latest",
+            "orchestratorImageNamespace": "hyc-cp4mcm-team-docker-local.artifactory.swg-devops.com/infra-mgmt",
+            "orchestratorImageName": "infra-mgmt-orchestrator"
+            "orchestratorImageTag": "latest-jansa",
+            "postgresqlImageName": "hyc-cp4mcm-team-docker-local.artifactory.swg-devops.com/infra-mgmt/postgresql",
+            "postgresqlImageTag": "10",
+            "zookeeperImageName": "hyc-cp4mcm-team-docker-local.artifactory.swg-devops.com/infra-mgmt/zookeeper",
+            "zookeeperImageTag": "latest",
+            "orchestratorInitialDelay": "2400"
+          }
+        }
+      ]
+    capabilities: Basic Install
+  name: ibm-management-im-install.v0.0.1
+  namespace: placeholder
+spec:
+  apiservicedefinitions: {}
+  customresourcedefinitions:
+    owned:
+    - description: IMInstall is the Schema for the iminstalls API
+      kind: IMInstall
+      name: iminstalls.infra.management.ibm.com
+      version: v1alpha1
+  displayName: Ibm Management Im Install
+  icon:
+  - base64data: ""
+    mediatype: ""
+  install:
+    spec:
+      deployments:
+      - name: ibm-infra-management-install-operator
+        spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              name: ibm-infra-management-install-operator
+          strategy: {}
+          template:
+            metadata:
+              annotations:
+                cloudpakId: 7f6eda41081c4e08a255be1f0b4aef2d
+                cloudpakName: IBM Cloud Pak for Multicloud Management
+                cloudpakVersion: "2.0"
+                olm.relatedImage.httpd: hyc-cp4mcm-team-docker-local.artifactory.swg-devops.com/infra-mgmt/httpd:latest
+                olm.relatedImage.base: hyc-cp4mcm-team-docker-local.artifactory.swg-devops.com/infra-mgmt/manageiq-base:latest-jansa
+                olm.relatedImage.base-worker: hyc-cp4mcm-team-docker-local.artifactory.swg-devops.com/infra-mgmt/manageiq-base-worker:latest-jansa
+                olm.relatedImage.kafka: hyc-cp4mcm-team-docker-local.artifactory.swg-devops.com/infra-mgmt/kafka:latest
+                olm.relatedImage.memcached: hyc-cp4mcm-team-docker-local.artifactory.swg-devops.com/infra-mgmt/memcached:latest
+                olm.relatedImage.orchestrator: hyc-cp4mcm-team-docker-local.artifactory.swg-devops.com/infra-mgmt/infra-mgmt-orchestrator:latest-jansa
+                olm.relatedImage.postgresql: hyc-cp4mcm-team-docker-local.artifactory.swg-devops.com/infra-mgmt/postgresql:10
+                olm.relatedImage.ui-worker: hyc-cp4mcm-team-docker-local.artifactory.swg-devops.com/infra-mgmt/manageiq-ui-worker:latest-jansa
+                olm.relatedImage.webserver-worker: hyc-cp4mcm-team-docker-local.artifactory.swg-devops.com/infra-mgmt/manageiq-webserver-worker:latest-jansa
+                olm.relatedImage.zookeeper: hyc-cp4mcm-team-docker-local.artifactory.swg-devops.com/infra-mgmt/zookeeper:latest
+                productChargedContainers: All
+                productCloudpakRatio: "1:1"
+                productID: 4747644c9bae4473aa336e128c3cc3e9
+                productMetric: MANAGED_VIRTUAL_SERVER
+                productName: IBM Cloud Pak for Multicloud Management Infrastructure
+                  Management
+                productVersion: "2.0"
+              labels:
+                app.kubernetes.io/instance: ibm-infra-management-install-operator
+                app.kubernetes.io/managed-by: ibm-infra-management-install-operator
+                app.kubernetes.io/name: ibm-infra-management-install-operator
+                name: ibm-infra-management-install-operator
+            spec:
+              affinity:
+                nodeAffinity:
+                  requiredDuringSchedulingIgnoredDuringExecution:
+                    nodeSelectorTerms:
+                    - matchExpressions:
+                      - key: kubernetes.io/arch
+                        operator: In
+                        values:
+                        - amd64
+              containers:
+              - command:
+                - ibm-infra-management-install-operator
+                env:
+                - name: WATCH_NAMESPACE
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.annotations['olm.targetNamespaces']
+                - name: POD_NAME
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.name
+                - name: OPERATOR_NAME
+                  value: ibm-infra-management-install-operator
+                - name: HTTPD_IMAGE
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.annotations['olm.relatedImage.httpd']
+                - name: KAFKA_IMAGE
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.annotations['olm.relatedImage.kafka']
+                - name: ZOOKEEPER_IMAGE
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.annotations['olm.relatedImage.zookeeper']
+                - name: MEMCACHED_IMAGE
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.annotations['olm.relatedImage.memcached']
+                - name: ORCHESTRATOR_IMAGE
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.annotations['olm.relatedImage.orchestrator']
+                - name: POSTGRESQL_IMAGE
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.annotations['olm.relatedImage.postgresql']
+                image: hyc-cp4mcm-team-docker-local.artifactory.swg-devops.com/ibmcom/ibm-infra-management-install-operator:0.0.1
+                imagePullPolicy: Always
+                livenessProbe:
+                  exec:
+                    command:
+                    - /bin/sh
+                    - -c
+                    - ls /usr/local/bin/entrypoint
+                  initialDelaySeconds: 10
+                  periodSeconds: 30
+                name: ibm-infra-management-install-operator
+                readinessProbe:
+                  exec:
+                    command:
+                    - /bin/sh
+                    - -c
+                    - ls /usr/local/bin/entrypoint
+                  initialDelaySeconds: 5
+                  periodSeconds: 1
+                resources:
+                  limits:
+                    cpu: 100m
+                    memory: 500Mi
+                  requests:
+                    cpu: 10m
+                    memory: 60Mi
+                securityContext:
+                  allowPrivilegeEscalation: false
+                  capabilities:
+                    drop:
+                    - ALL
+                  privileged: false
+                  readOnlyRootFilesystem: true
+              serviceAccountName: ibm-infra-management-install-operator
+      permissions:
+      - rules:
+        - apiGroups:
+          - ""
+          resources:
+          - pods
+          - pods/finalizers
+          - services
+          - services/finalizers
+          - persistentvolumeclaims
+          - configmaps
+          - secrets
+          - serviceaccounts
+          verbs:
+          - '*'
+        - apiGroups:
+          - extensions
+          resources:
+          - deployments
+          - deployments/scale
+          - ingresses
+          verbs:
+          - '*'
+        - apiGroups:
+          - rbac.authorization.k8s.io
+          resources:
+          - rolebindings
+          - roles
+          verbs:
+          - '*'
+        - apiGroups:
+          - apps
+          resources:
+          - deployments
+          - deployments/scale
+          - replicasets
+          verbs:
+          - '*'
+        - apiGroups:
+          - monitoring.coreos.com
+          resources:
+          - servicemonitors
+          verbs:
+          - get
+          - create
+        - apiGroups:
+          - apps
+          resourceNames:
+          - ibm-infra-management-install-operator
+          resources:
+          - deployments/finalizers
+          verbs:
+          - update
+        - apiGroups:
+          - infra.management.ibm.com
+          resources:
+          - '*'
+          verbs:
+          - '*'
+        - apiGroups:
+          - route.openshift.io
+          resources:
+          - routes/custom-host
+          verbs:
+          - '*'
+        serviceAccountName: ibm-infra-management-install-operator
+    strategy: deployment
+  installModes:
+  - supported: true
+    type: OwnNamespace
+  - supported: true
+    type: SingleNamespace
+  - supported: false
+    type: MultiNamespace
+  - supported: true
+    type: AllNamespaces
+  keywords:
+  - ""
+  maintainers:
+  - email: support@ibm.com
+    name: IBM Support
+  maturity: alpha
+  provider: {}
+  version: 0.0.1

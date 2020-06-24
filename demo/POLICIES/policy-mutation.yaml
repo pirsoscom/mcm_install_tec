@@ -1,0 +1,54 @@
+apiVersion: policy.mcm.ibm.com/v1alpha1
+kind: Policy
+metadata:
+  name: policy-mutationpolicy
+  namespace: default
+  annotations:
+    policy.mcm.ibm.com/standards: NIST
+    policy.mcm.ibm.com/categories: PROD SystemAndCommunicationsProtections
+    policy.mcm.ibm.com/controls: MutationAdvisor
+spec:
+  complianceType: musthave
+  remediationAction: inform
+  disabled: true
+  namespaces:
+    exclude: ["kube-*"]
+    include: ["default"]
+  policy-templates:
+    - objectDefinition:
+        apiVersion: policies.ibm.com/v1alpha1
+        kind: MutationPolicy # no mutation allowed
+        metadata:
+          name: policy-mutationpolicy-example
+        spec:
+          namespaceSelector:
+            include: ["default","kube-*"]
+            exclude: ["kube-system"]
+          remediationAction: inform # enforce or inform
+          severity: medium
+          conditions:
+            ownership: ["ReplicaSet", "Deployment", "DeamonSet", "ReplicationController", "Service", "none"]
+---
+apiVersion: mcm.ibm.com/v1alpha1
+kind: PlacementBinding
+metadata:
+  name: binding-policy-mutationpolicy
+  namespace: default
+placementRef:
+  name: placement-policy-mutationpolicy
+  kind: PlacementPolicy
+  apiGroup: mcm.ibm.com
+subjects:
+- name: policy-mutationpolicy
+  kind: Policy
+  apiGroup: policy.mcm.ibm.com
+---
+apiVersion: mcm.ibm.com/v1alpha1
+kind: PlacementPolicy
+metadata:
+  name: placement-policy-mutationpolicy
+  namespace: default
+spec:
+  clusterLabels:
+    matchExpressions:
+      - {key: environment, operator: In, values: ["Prod"]}

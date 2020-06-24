@@ -1,0 +1,14 @@
+apiVersion: manageiq.org/v1alpha1
+kind: ManageIQ
+metadata:
+  name: miq
+spec:
+  applicationDomain: CF_HOSTNAME
+  #deployMessagingService: true
+  httpdAuthConfig: miq-configuration
+  httpdAuthenticationType: openid-connect
+  initialAdminGroupName: demo
+  oidcAuthIntrospectionURL: MCM_SERVER/idprovider/v1/auth/introspect
+  oidcCaCertSecret: miq-secret
+  oidcClientSecret: CLIENT_SECRET
+  oidcProviderURL: MCM_SERVER/idprovider/v1/auth/authorize

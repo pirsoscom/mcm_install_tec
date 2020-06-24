@@ -1,0 +1,75 @@
+apiVersion: policy.mcm.ibm.com/v1alpha1
+kind: Policy
+metadata:
+  name: policy-prod-network
+  namespace: default
+  annotations:
+    policy.mcm.ibm.com/categories: PROD Network Configuration
+    policy.mcm.ibm.com/standards: IBM
+    policy.mcm.ibm.com/controls: MutationAdvisor
+    seed-generation: '0'
+spec:
+  complianceType: musthave
+  disabled: false
+  namespaces:
+    exclude:
+      - kube-*
+    include:
+      - default
+  object-templates:
+    - complianceType: musthave
+      objectDefinition:
+        apiVersion: networking.k8s.io/v1
+        kind: NetworkPolicy
+        metadata:
+          name: prod-network-policy
+          namespace: default
+        spec:
+          severity: high
+          podSelector:
+            matchLabels:
+              role: db
+          ingress:
+            - from:
+                - namespaceSelector:
+                    matchLabels:
+                      project: myproject
+                - podSelector:
+                    matchLabels:
+                      role: somerole
+              ports:
+                - protocol: TCP
+                  port: 6379
+  remediationAction: enforce
+---
+apiVersion: mcm.ibm.com/v1alpha1
+kind: PlacementBinding
+metadata:
+  name: binding-policy-prod-network
+  namespace: default
+  labels:
+    name: binding-policy-prod
+    placementPolicy: placement-policy-prod
+placementRef:
+  name: placement-policy-prod-network
+  apiGroup: mcm.ibm.com
+  kind: PlacementPolicy
+subjects:
+  - name: policy-prod-network
+    apiGroup: policy.mcm.ibm.com
+    kind: Policy
+---
+apiVersion: mcm.ibm.com/v1alpha1
+kind: PlacementPolicy
+metadata:
+  name: placement-policy-prod-network
+  namespace: default
+spec:
+  clusterLabels:
+    matchExpressions:
+      - key: environment
+        operator: In
+        values:
+          - Prod
+  resourceHint: {}
+  resourceSelector: {}

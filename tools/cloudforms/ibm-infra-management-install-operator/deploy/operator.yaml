@@ -1,0 +1,114 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ibm-infra-management-install-operator
+  labels:
+    app.kubernetes.io/name: ibm-infra-management-install-operator
+    app.kubernetes.io/instance: ibm-infra-management-install-operator
+    app.kubernetes.io/managed-by: ibm-infra-management-install-operator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: ibm-infra-management-install-operator
+  template:
+    metadata:
+      labels:
+        name: ibm-infra-management-install-operator
+        app.kubernetes.io/name: ibm-infra-management-install-operator
+        app.kubernetes.io/instance: ibm-infra-management-install-operator
+        app.kubernetes.io/managed-by: ibm-infra-management-install-operator
+      annotations:
+        productName: "IBM Cloud Pak for Multicloud Management Infrastructure Management"
+        productID: "4747644c9bae4473aa336e128c3cc3e9"
+        productVersion: "2.0"
+        cloudpakId: "7f6eda41081c4e08a255be1f0b4aef2d"
+        cloudpakName: "IBM Cloud Pak for Multicloud Management"
+        cloudpakVersion: "2.0"
+        productChargedContainers: "All"
+        productCloudpakRatio: 1:1
+        productMetric: "MANAGED_VIRTUAL_SERVER"
+        olm.relatedImage.httpd: hyc-cp4mcm-team-docker-local.artifactory.swg-devops.com/cicd/httpd:latest
+        olm.relatedImage.kafka: docker.io/bitnami/kafka:latest
+        olm.relatedImage.zookeeper: docker.io/bitnami/zookeeper:latest
+        olm.relatedImage.memcached: hyc-cp4mcm-team-docker-local.artifactory.swg-devops.com/cicd/memcached:latest
+        olm.relatedImage.orchestrator: hyc-cp4mcm-team-docker-local.artifactory.swg-devops.com/cicd/manageiq-orchestrator:latest
+        olm.relatedImage.postgresql: hyc-cp4mcm-team-docker-local.artifactory.swg-devops.com/cicd/manageiq/postgresql:latest
+    spec:
+      serviceAccountName: ibm-infra-management-install-operator
+      hostNetwork: false
+      hostPID: false
+      hostIPC: false
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/arch
+                operator: In
+                values: ["amd64"]
+      containers:
+        - name: ibm-infra-management-install-operator
+          image: quay.io/multicloudlab/iminstall-operator:0.0.1
+          command:
+          - ibm-infra-management-install-operator
+          imagePullPolicy: Always
+          env:
+            - name: WATCH_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: OPERATOR_NAME
+              value: "ibm-infra-management-install-operator"
+            - name: HTTPD_IMAGE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.annotations['olm.relatedImage.httpd']
+            - name: KAFKA_IMAGE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.annotations['olm.relatedImage.kafka']
+            - name: ZOOKEEPER_IMAGE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.annotations['olm.relatedImage.zookeeper']
+            - name: MEMCACHED_IMAGE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.annotations['olm.relatedImage.memcached']
+            - name: ORCHESTRATOR_IMAGE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.annotations['olm.relatedImage.orchestrator']
+            - name: POSTGRESQL_IMAGE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.annotations['olm.relatedImage.postgresql']
+          securityContext:
+            privileged: false
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+          resources:
+            limits:
+              cpu: 100m
+              memory: 500Mi
+            requests:
+              cpu: 10m
+              memory: 60Mi
+          readinessProbe:
+            exec:
+              command: ["/bin/sh", "-c", "ls /usr/local/bin/entrypoint"]
+            initialDelaySeconds: 5
+            periodSeconds: 1
+          livenessProbe:
+            exec:
+              command: ["/bin/sh", "-c", "ls /usr/local/bin/entrypoint"]
+            initialDelaySeconds: 10
+            periodSeconds: 30

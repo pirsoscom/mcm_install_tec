@@ -1,0 +1,13 @@
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: default-route-openshift-image-registry
+  namespace: openshift-image-registry
+spec:
+  to:
+    kind: Service
+    name: image-registry
+    weight: 100
+  port:
+    targetPort: 5000-tcp
+  wildcardPolicy: None

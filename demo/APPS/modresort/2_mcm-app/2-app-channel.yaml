@@ -1,0 +1,19 @@
+
+apiVersion: app.ibm.com/v1alpha1
+kind: Channel
+metadata:
+  name: modresort-app-channel
+  namespace: modresort-app-ns
+  generation: 1
+  labels:
+    app: modresort-app
+spec:
+  sourceNamespaces:
+  - modresort-app-ns
+  type: Namespace
+  pathname: modresort-app-ns
+  gates:
+    annotations:
+      dev-ready: approved
+
+

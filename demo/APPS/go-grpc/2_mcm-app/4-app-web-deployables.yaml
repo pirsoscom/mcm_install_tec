@@ -1,0 +1,253 @@
+---
+apiVersion: app.ibm.com/v1alpha1
+kind: Deployable
+metadata:
+  name: grpcdemo-rpc-server
+  namespace: grpcdemo-app-ns
+  generation: 1
+  labels:
+    app: grpcdemo-app-server
+spec:
+  template:
+    apiVersion: extensions/v1beta1
+    kind: Deployment
+    metadata:
+      name: grpc-server
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          app: grpc-server
+      template:
+        metadata:
+          labels:
+            app: grpc-server
+        spec:
+          containers:
+          - name: grpc-server
+            image: niklaushirt/grpc-server:1.0.0
+            imagePullPolicy: IfNotPresent 
+            env:
+            - name: BACKEND_MESSAGE
+              value: "Hello from the Backend"
+            - name: GRPC_PORT
+              value: "50061"
+---
+apiVersion: app.ibm.com/v1alpha1
+kind: Deployable
+metadata:
+  name: grpcdemo-grpc-server-service
+  namespace: grpcdemo-app-ns
+  generation: 1
+  labels:
+    app: grpcdemo-app-server
+spec:
+  template:
+    apiVersion: v1
+    kind: Service
+    metadata:
+      name: grpc-server-service
+    spec:
+      selector:
+        app: grpc-server
+      ports:
+        - protocol: TCP
+          port: 50061
+          targetPort: 50061
+      type: ClusterIP
+---
+apiVersion: app.ibm.com/v1alpha1
+kind: Deployable
+metadata:
+  name: grpcdemo-grpc-server-route
+  namespace: grpcdemo-app-ns
+  generation: 1
+  labels:
+    app: grpcdemo-app-server
+spec:
+  template:
+    apiVersion: route.openshift.io/v1
+    kind: Route
+    metadata:
+      name: grpc-server-route
+      labels:
+        app: grpc-server
+    spec:
+      #host: grpc-server-service-default.apps.94.23.25.93.nip.io
+      to:
+        kind: Service
+        name: grpc-server-service
+        weight: 100
+      wildcardPolicy: None
+---
+apiVersion: app.ibm.com/v1alpha1
+kind: Deployable
+metadata:
+  name: grpcdemo-grpc-api
+  namespace: grpcdemo-app-ns
+  generation: 1
+  labels:
+    app: grpcdemo-app-api
+spec:
+  template:
+    apiVersion: extensions/v1beta1
+    kind: Deployment
+    metadata:
+      name: grpc-api
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          app: grpc-api
+      template:
+        metadata:
+          labels:
+            app: grpc-api
+        spec:
+          containers:
+          - name: grpc-api
+            image: niklaushirt/grpc-api:1.0.0
+            imagePullPolicy: IfNotPresent 
+            env:
+            - name: GRPC_URL
+              value: "grpc-server-service.grpcdemo-app"
+            - name: GRPC_PORT
+              value: "50061"
+            - name: API_REST_PORT
+              value: "8090"
+---
+apiVersion: app.ibm.com/v1alpha1
+kind: Deployable
+metadata:
+  name: grpcdemo-grpc-api-service
+  namespace: grpcdemo-app-ns
+  generation: 1
+  labels:
+    app: grpcdemo-app-api
+spec:
+  template:
+    apiVersion: v1
+    kind: Service
+    metadata:
+      name: grpc-api-service
+    spec:
+      selector:
+        app: grpc-api
+      ports:
+        - protocol: TCP
+          port: 8090
+          targetPort: 8090
+      type: ClusterIP
+---
+apiVersion: app.ibm.com/v1alpha1
+kind: Deployable
+metadata:
+  name: grpcdemo-grpc-api-route
+  namespace: grpcdemo-app-ns
+  generation: 1
+  labels:
+    app: grpcdemo-app-api
+spec:
+  template:
+    kind: Route
+    apiVersion: route.openshift.io/v1
+    metadata:
+      name: grpc-api-route
+      labels:
+        app: grpc-api
+    spec:
+      #host: grpc-api-service-default.apps.94.23.25.93.nip.io
+      to:
+        kind: Service
+        name: grpc-api-service
+        weight: 100
+      wildcardPolicy: None
+---
+apiVersion: app.ibm.com/v1alpha1
+kind: Deployable
+metadata:
+  name: grpcdemo-grpc-web
+  namespace: grpcdemo-app-ns
+  generation: 1
+  labels:
+    app: grpcdemo-app-web
+spec:
+  template:
+    apiVersion: extensions/v1beta1
+    kind: Deployment
+    metadata:
+      name: grpc-web
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          app: grpc-web
+      template:
+        metadata:
+          labels:
+            app: grpc-web
+        spec:
+          containers:
+          - name: grpc-web
+            image: niklaushirt/grpcdemo:1.0.0
+            imagePullPolicy: IfNotPresent 
+            ports:
+            - containerPort: 3000
+            env:
+              - name: PORT
+                value : "3000"
+              - name: APPLICATION_NAME
+                value : "grpc-web"
+              - name: BACKEND_URL
+                value : "http://grpc-api-route-grpcdemo-app.apps.91.121.172.228.nip.io/get"
+---
+apiVersion: app.ibm.com/v1alpha1
+kind: Deployable
+metadata:
+  name: grpcdemo-grpc-web-service
+  namespace: grpcdemo-app-ns
+  generation: 1
+  labels:
+    app: grpcdemo-app-web
+spec:
+  template:
+    apiVersion: v1
+    kind: Service
+    metadata:
+      name: grpc-web-service
+    spec:
+      selector:
+        app: grpc-web
+      ports:
+        - protocol: TCP
+          port: 3000
+          targetPort: 3000
+      type: ClusterIP
+---
+apiVersion: app.ibm.com/v1alpha1
+kind: Deployable
+metadata:
+  name: grpcdemo-rpc-web-route
+  namespace: grpcdemo-app-ns
+  generation: 1
+  labels:
+    app: grpcdemo-app-web
+spec:
+  template:
+    kind: Route
+    apiVersion: route.openshift.io/v1
+    metadata:
+      name: grpc-web-route
+      labels:
+        app: grpc-web
+    spec:
+      #host: grpc-web-service-default.apps.94.23.25.93.nip.io
+      to:
+        kind: Service
+        name: grpc-web-service
+        weight: 100
+      wildcardPolicy: None
+
+
+
+

@@ -1,0 +1,34 @@
+apiVersion: app.ibm.com/v1alpha1
+kind: Subscription
+metadata:
+  name: modresort-app-web
+  namespace: modresort-app
+  generation: 1
+  labels:
+    app: modresort-app-web
+spec:
+  name: ''
+  channel: modresort-app-ns/modresort-app-channel
+  placement:
+    placementRef:
+      name: modresort-app-web-placement
+      kind: PlacementRule
+  packageFilter:
+    labelSelector:
+      matchLabels:
+        app: modresort-app-web
+---
+apiVersion: app.ibm.com/v1alpha1
+kind: PlacementRule
+metadata:
+  name: modresort-app-web-placement
+  namespace: modresort-app
+  generation: 1
+  labels:
+    app: modresort-app-web
+spec:
+  clusterLabels:
+    matchLabels:
+      environment: Prod
+      region: EU
+  clusterReplicas: 1

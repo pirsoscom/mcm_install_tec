@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="640px" height="310px" viewBox="0 0 640 310" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: sketchtool 56.3 (101010) - https://sketch.com -->
+    <title>72538178-66D6-49F3-AFB9-F1207F442CF4</title>
+    <desc>Created with sketchtool.</desc>
+    <defs>
+        <linearGradient x1="49.7938704%" y1="40.8351345%" x2="8.49319078%" y2="54.5394735%" id="linearGradient-1">
+            <stop stop-color="#F3F3F3" offset="0%"></stop>
+            <stop stop-color="#DFE3E6" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="Getting-Started-Hifi" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="01.01-Getting-Started" transform="translate(-672.000000, -49.000000)" fill="url(#linearGradient-1)">
+            <path d="M706.827754,49.7705211 L706.73539,50.2452494 C704.14266,63.9590415 708.293981,77.3995309 718.752271,84.7663811 L740.655144,100.19236 C762.557512,115.620934 740.039031,144.299518 737.241005,148.265512 C724.100299,166.88744 725.876001,190.737529 741.20957,201.536017 L798.103433,241.611616 C810.814487,253.34112 811.707389,275.205254 799.545346,292.439632 C789.497131,306.676237 774.369426,314.828921 761.301518,309.337847 C753.621345,306.112615 732.302402,291.802749 732.302402,291.802749 C716.813106,280.890562 693.6798,287.037515 680.62607,305.530957 C667.578038,324.022813 669.555981,347.858334 685.045277,358.770521 L1322.48523,358.770521 L1322.48523,49.7705211 L706.827754,49.7705211 Z" id="Fill-1"></path>
+        </g>
+    </g>
+</svg>

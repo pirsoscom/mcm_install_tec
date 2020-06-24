@@ -1,0 +1,16 @@
+apiVersion: infra.management.ibm.com/v1alpha1
+kind: IMInstall
+metadata:
+  name: example-iminstall
+  labels:
+    app.kubernetes.io/name: ibm-infra-management-install-operator
+    app.kubernetes.io/instance: ibm-infra-management-install-operator
+    app.kubernetes.io/managed-by: ibm-infra-management-install-operator
+spec:
+  applicationDomain: "iminstall.apps.gyliu-ocp-1.os.fyre.ibm.com"
+  orchestratorInitialDelay: "2400"
+  orchestratorImageNamespace: "hyc-bluecf-team-docker-local.artifactory.swg-devops.com/bluecf"
+  orchestratorImageTag: "latest-jansa"
+  imagePullSecret: "docker"
+  license:
+    accept: true

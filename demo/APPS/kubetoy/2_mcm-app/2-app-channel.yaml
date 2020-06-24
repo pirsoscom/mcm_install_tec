@@ -1,0 +1,13 @@
+
+apiVersion: app.ibm.com/v1alpha1
+kind: Channel
+metadata:
+  name: kubetoy-channel
+  namespace: kubetoy-channel-namespace
+  labels:
+    app: kubetoy-app
+spec:
+  type: Namespace
+  pathname: kubetoy-channel-namespace
+
+

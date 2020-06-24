@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: iminstall-namespace
+  labels:
+    app.kubernetes.io/name: ibm-infra-management-install-operator
+    app.kubernetes.io/instance: ibm-infra-management-install-operator
+    app.kubernetes.io/managed-by: ibm-infra-management-install-operator

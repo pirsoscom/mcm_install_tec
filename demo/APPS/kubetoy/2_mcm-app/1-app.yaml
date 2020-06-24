@@ -1,0 +1,17 @@
+
+apiVersion: app.k8s.io/v1beta1
+kind: Application
+metadata:
+  name: kubetoy-application
+  namespace: kubetoy-project
+  generation: 2
+  labels:
+    app: kubetoy-app
+spec:
+  componentKinds:
+    - group: app.ibm.com
+      kind: Subscription
+  descriptor: {}
+  selector:
+    matchLabels:
+      app: kubetoy-app

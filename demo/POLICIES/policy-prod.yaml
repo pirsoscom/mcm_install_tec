@@ -1,0 +1,114 @@
+apiVersion: policy.mcm.ibm.com/v1alpha1
+kind: Policy
+metadata:
+  name: policy-prod
+  namespace: default
+  annotations:
+    policy.mcm.ibm.com/categories: PROD Production Ready
+    policy.mcm.ibm.com/standards: PCI
+    seed-generation: '0'
+spec:
+  complianceType: musthave
+  disabled: false
+  namespaces:
+    exclude:
+      - kube-*
+    include:
+      - default
+  object-templates:
+    - complianceType: musthave
+      objectDefinition:
+        apiVersion: v1
+        kind: ResourceQuota
+        metadata:
+          name: prod-resource-quota
+          namespace: default
+        spec:
+          hard:
+            pods: '1000'
+            requests.cpu: '40'
+            requests.memory: 10Gi
+            limits.cpu: '10'
+            limits.memory: 20Gi
+    - complianceType: musthave
+      objectDefinition:
+        apiVersion: v1
+        kind: Namespace
+        metadata:
+          name: prod
+    - complianceType: musthave
+      objectDefinition:
+        apiVersion: rbac.authorization.k8s.io/v1
+        kind: RoleBinding
+        metadata:
+          name: operate-pods-rolebinding
+        roleRef:
+          name: operator
+          apiGroup: rbac.authorization.k8s.io
+          kind: Role
+        subjects:
+          - name: admin
+            apiGroup: rbac.authorization.k8s.io
+            kind: User
+    - complianceType: musthave
+      objectDefinition:
+        apiVersion: policy/v1beta1
+        kind: PodSecurityPolicy
+        metadata:
+          name: restricted-mcm
+          annotations:
+            seccomp.security.alpha.kubernetes.io/allowedProfileNames: '*'
+        spec:
+          allowedCapabilities:
+            - '*'
+          allowPrivilegeEscalation: false
+          fsGroup:
+            rule: RunAsAny
+          hostIPC: false
+          hostNetwork: true
+          hostPID: false
+          hostPorts:
+            - max: 65535
+              min: 1000
+          privileged: false
+          runAsUser:
+            rule: RunAsAny
+          seLinux:
+            rule: RunAsAny
+          supplementalGroups:
+            rule: RunAsAny
+          volumes:
+            - '*'
+  remediationAction: enforce
+---
+apiVersion: mcm.ibm.com/v1alpha1
+kind: PlacementBinding
+metadata:
+  name: binding-policy-prod
+  namespace: default
+  labels:
+    name: binding-policy-prod
+    placementPolicy: placement-policy-prod
+placementRef:
+  name: placement-policy-prod
+  apiGroup: mcm.ibm.com
+  kind: PlacementPolicy
+subjects:
+  - name: policy-prod
+    apiGroup: policy.mcm.ibm.com
+    kind: Policy
+---
+apiVersion: mcm.ibm.com/v1alpha1
+kind: PlacementPolicy
+metadata:
+  name: placement-policy-prod
+  namespace: default
+spec:
+  clusterLabels:
+    matchExpressions:
+      - key: environment
+        operator: In
+        values:
+          - Prod
+  resourceHint: {}
+  resourceSelector: {}
