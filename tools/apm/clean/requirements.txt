@@ -12,7 +12,7 @@ pathos==0.2.1
 pox==0.2.3
 ppft==1.6.4.7.1
 python-dateutil==2.8.0
-PyYAML==4.2b1
+PyYAML==5.4
 requests==2.21.0
 six==1.12.0
 urllib3==1.24.1
